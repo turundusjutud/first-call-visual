@@ -14,6 +14,7 @@ COLOR_WHITE = HexColor("#FFFFFF")
 COLOR_TEXT = HexColor("#2E3A39")
 COLOR_GREY = HexColor("#555555")
 COLOR_LIGHT_GREY = HexColor("#F2F2F2")
+COLOR_LINE = HexColor("#DDDDDD")
 
 # --- ABIFUNKTSIOONID ---
 
@@ -66,14 +67,14 @@ def create_pricing_pdf(logo_file):
     c.setFillColor(COLOR_BG)
     c.rect(0, 0, width, height, fill=1)
 
-    draw_header(c, width, height, logo_file, "TEENUSTE HINNASTUS", "Läbipaistev ja tulemustele suunatud")
+    draw_header(c, width, height, logo_file, "TEENUSTE HINNASTUS", "Läbipaistev ja kasvule suunatud")
 
-    # --- PÕHIPAKETT (RETAINER) ---
+    # --- 1. PÕHIPAKETT (RETAINER) ---
     start_y = height - 150
     
     c.setFillColor(COLOR_TEAL)
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, start_y, "IGAKUINE HALDUSTEENUS (RETAINER)")
+    c.drawString(50, start_y, "IGAKUINE PARTNERLUS (RETAINER)")
     
     # Suur kast
     c.setFillColor(COLOR_WHITE)
@@ -101,17 +102,18 @@ def create_pricing_pdf(logo_file):
     c.setStrokeColor(HexColor("#EEEEEE"))
     c.line(80, start_y - 85, 515, start_y - 85)
     
-    # Mis sisaldub (Vasak tulp)
+    # --- SENIOR-TASEME SISU ---
     col1_x = 80
     list_y = start_y - 110
     
+    # Uuendatud, tugevamad punktid (Holini eeskujul)
     items_included = [
-        "Google, Meta & TikTok kampaaniate haldus",
-        "Reklaamide seadistamine ja optimeerimine",
-        "Eksperimentide läbiviimine (A/B testimine)",
-        "Google Search reklaamtekstide copywriting",
-        "Iganädalane monitooring",
-        "Igakuine raport ja strateegiakõne"
+        "Senior-taseme ekspertiis (6+ aastat Bolti kogemust)",
+        "Proaktiivne kasvustrateegia ja eksperimendid",
+        "Täielik andmete omandiõigus ja läbipaistvus",
+        "Andmekvaliteedi garantii (Tracking enne kulutamist)",
+        "Fookus kasumile, mitte 'edevusmõõdikutele' (Vanity Metrics)",
+        "Kiire otsesuhtlus ilma vahemeesteta"
     ]
     
     c.setFillColor(COLOR_TEAL)
@@ -121,69 +123,84 @@ def create_pricing_pdf(logo_file):
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
     for item in items_included:
+        # Kasutame linnukest või bulletit
         c.drawString(col1_x, list_y - 5, f"•  {item}")
         list_y -= 18
 
-    # --- LISA- JA PROJEKTIPÕHISED TEENUSED ---
-    extra_y = start_y - 260
+    # --- 2. LISA- JA PROJEKTIPÕHISED TEENUSED ---
+    extra_title_y = start_y - 260
     
     c.setFillColor(COLOR_DARK)
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, extra_y, "LISA- JA PROJEKTIPÕHISED TEENUSED")
+    c.drawString(50, extra_title_y, "LISA- JA PROJEKTIPÕHISED TEENUSED")
     c.setFont("Helvetica", 10)
-    c.drawString(50, extra_y - 15, "(Ei sisaldu igakuises haldustasus, arveldatakse kuu lõpus vastavalt kulule)")
+    c.drawString(50, extra_title_y - 15, "(Ei sisaldu igakuises haldustasus, arveldatakse kuu lõpus vastavalt kulule)")
+    
+    # Arvutame kasti paigutuse sümmeetriliselt
+    box_top_y = extra_title_y - 30
+    row_height = 55 # Ühe rea kõrgus
+    padding = 20    # Ülemine ja alumine padding
+    box_height = (3 * row_height) + (2 * padding) # Kokku ca 205
     
     # Kast lisadele
     c.setFillColor(COLOR_LIGHT_GREY) 
     c.setStrokeColor(COLOR_GREY)
     c.setLineWidth(1)
-    c.roundRect(50, extra_y - 180, 495, 150, 10, fill=1, stroke=1)
+    c.roundRect(50, box_top_y - box_height, 495, box_height, 10, fill=1, stroke=1)
     
-    # Lisa 1: Loovlahendused
-    row1_y = extra_y - 60
+    # Rea alguspunktid (Teksti jaoks)
+    # Esimene rida
+    row1_text_y = box_top_y - padding - 10
+    
+    # --- RIDA 1: LOOVLAHENDUSED ---
     c.setFillColor(COLOR_ORANGE)
     c.setFont("Helvetica-Bold", 12)
-    c.drawString(80, row1_y, "LOOVLAHENDUSED (Creative)")
+    c.drawString(80, row1_text_y, "LOOVLAHENDUSED (Creative)")
     
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
-    c.drawString(80, row1_y - 15, "Pildid, videod, bännerid (Partner-tiim)")
+    c.drawString(80, row1_text_y - 15, "Pildid, videod, bännerid (Partner-tiim)")
     
-    # HIND 1
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row1_y, "alates 70€ / tund")
+    c.drawRightString(515, row1_text_y, "alates 70€ / tund")
     
-    # Eraldusjoon
-    c.setStrokeColor(HexColor("#DDDDDD"))
-    c.line(80, row1_y - 30, 515, row1_y - 30)
+    # JOON 1
+    line1_y = row1_text_y - 35
+    c.setStrokeColor(COLOR_LINE)
+    c.line(80, line1_y, 515, line1_y)
     
-    # Lisa 2: Tehniline seadistus
-    row2_y = row1_y - 50
+    # --- RIDA 2: TEHNILINE ---
+    row2_text_y = line1_y - 25 # Järgmise rea tekst
+    
     c.setFillColor(COLOR_ORANGE)
     c.setFont("Helvetica-Bold", 12)
-    c.drawString(80, row2_y, "ANALÜÜTIKA & TRACKING")
+    c.drawString(80, row2_text_y, "ANALÜÜTIKA & TRACKING")
     
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
-    c.drawString(80, row2_y - 15, "GA4 server-side, GTM, Pixel seadistused")
+    c.drawString(80, row2_text_y - 15, "GA4 server-side, GTM, Pixel seadistused")
     
-    # HIND 2
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row2_y, "100 - 150€ / tund")
+    c.drawRightString(515, row2_text_y, "100 - 150€ / tund")
     
-    # Lisa 3: Lisatunnid
-    row3_y = row2_y - 50
+    # JOON 2 (PUUDUV JOON LISATUD!)
+    line2_y = row2_text_y - 35
+    c.setStrokeColor(COLOR_LINE)
+    c.line(80, line2_y, 515, line2_y)
+    
+    # --- RIDA 3: LISAMAHT ---
+    row3_text_y = line2_y - 25
+    
     c.setFillColor(COLOR_ORANGE)
     c.setFont("Helvetica-Bold", 12)
-    c.drawString(80, row3_y, "LISAMAHT (>20h)")
+    c.drawString(80, row3_text_y, "LISAMAHT (>20h)")
     
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
-    c.drawString(80, row3_y - 15, "Kui töömaht ületab paketis sisalduvat aega")
+    c.drawString(80, row3_text_y - 15, "Kui töömaht ületab paketis sisalduvat aega")
     
-    # HIND 3
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row3_y, "kokkuleppel al. 100€ / tund")
+    c.drawRightString(515, row3_text_y, "kokkuleppel al. 100€ / tund")
 
     # --- TINGIMUSED ---
     terms_y = 110
@@ -205,7 +222,7 @@ def create_pricing_pdf(logo_file):
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="Turundusjutud Hinnastus", page_icon="💶")
 st.title("💶 Hinnastuse Lehe Generaator")
-st.write("Genereeri uuendatud hindadega teenuste hinnakiri.")
+st.write("Genereeri uuendatud hindadega ja sümmeetriline hinnakiri.")
 
 logo = st.file_uploader("Lae üles logo (PNG)", type=['png'])
 
