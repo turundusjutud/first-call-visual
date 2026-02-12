@@ -4,7 +4,6 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
 from reportlab.lib.utils import ImageReader
 import io
-import textwrap
 
 # --- BRÄNDI VÄRVID ---
 COLOR_TEAL = HexColor("#1A776F")
@@ -14,6 +13,7 @@ COLOR_BG = HexColor("#FAFAFA")
 COLOR_WHITE = HexColor("#FFFFFF")
 COLOR_TEXT = HexColor("#2E3A39")
 COLOR_GREY = HexColor("#555555")
+COLOR_LIGHT_GREY = HexColor("#F2F2F2")
 
 # --- ABIFUNKTSIOONID ---
 
@@ -55,93 +55,14 @@ def draw_footer(c, width):
     c.setFont("Helvetica", 8)
     c.drawCentredString(width/2, 25, "reimo.arm@turundusjutud.ee  |  www.turundusjutud.ee  |  Turundusjutud OÜ")
 
-# --- 1. ONBOARDING VISUAALI GENEREERIMINE ---
-
-def create_process_pdf(logo_file):
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    c.setFillColor(COLOR_BG)
-    c.rect(0, 0, width, height, fill=1)
-
-    draw_header(c, width, height, logo_file, "KOOSTÖÖ TEEKAART", "Ideest teostuseni: Kuidas me töötame")
-
-    steps = [
-        {
-            "num": "1", "title": "ESMANE KONTAKT", "sub": "Sobivuse hindamine",
-            "text": "Vastame päringule kiirelt. Eesmärk on välja selgitada, kas oleme potentsiaalselt sobivad partnerid, enne kui liigume süvitsi."
-        },
-        {
-            "num": "2", "title": "AVASTUSKÕNE (DISCOVERY)", "sub": "Eesmärgid ja KPI-d",
-            "text": "Kaardistame 3, 6 ja 12 kuu eesmärgid. Mis on töötanud, mis mitte? Lepime kokku mõõdikud (KPI-d), millega hindame edu."
-        },
-        {
-            "num": "3", "title": "NDA JA AUDIT", "sub": "Turvaline ligipääs",
-            "text": "Allkirjastame konfidentsiaalsuslepingu (NDA). Saame ligipääsud reklaamkontodele ja analüütikale, et teostada tehniline audit."
-        },
-        {
-            "num": "4", "title": "STRATEEGIA JA PAKKUMINE", "sub": "Tegevuskava",
-            "text": "Esitleme auditi tulemusi ja 3-6 kuu tegevusplaani. Kui strateegia ja lahendused sobivad, kinnitame hinnastuse ja liigume lepingusse."
-        },
-        {
-            "num": "5", "title": "LEPING JA START", "sub": "Töö algus",
-            "text": "Sõlmime lepingu (fikseeritud tasu või tunnipõhine). Arveldamine toimub ettemaksuna. Alustame seadistuste ja kampaaniatega."
-        }
-    ]
-
-    current_y = height - 160
-    line_x = 70
-    
-    # Ühendav joon
-    c.setStrokeColor(COLOR_TEAL)
-    c.setLineWidth(2)
-    c.line(line_x, current_y, line_x, current_y - (len(steps)-1)*105)
-
-    for step in steps:
-        # Kast
-        box_height = 85
-        c.setFillColor(HexColor("#F7F9F9"))
-        c.setStrokeColor(COLOR_TEAL)
-        c.setLineWidth(1)
-        c.roundRect(line_x + 30, current_y - box_height + 15, 420, box_height, 8, fill=1, stroke=1)
-
-        # Number
-        c.setFillColor(COLOR_TEAL)
-        c.setStrokeColor(COLOR_BG)
-        c.circle(line_x, current_y - 25, 15, fill=1, stroke=1)
-        c.setFillColor(COLOR_WHITE)
-        c.setFont("Helvetica-Bold", 12)
-        c.drawCentredString(line_x, current_y - 29, step['num'])
-
-        # Tekst
-        c.setFillColor(COLOR_TEAL)
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(line_x + 50, current_y - 10, step['title'])
-        
-        c.setFillColor(COLOR_TEXT)
-        c.setFont("Helvetica-Bold", 9)
-        c.drawString(line_x + 50, current_y - 24, step['sub'])
-        
-        c.setFont("Helvetica", 9)
-        wrapper = textwrap.TextWrapper(width=80)
-        text_y = current_y - 40
-        for line in wrapper.wrap(step['text']):
-            c.drawString(line_x + 50, text_y, line)
-            text_y -= 12
-
-        current_y -= 105
-
-    draw_footer(c, width)
-    c.save()
-    buffer.seek(0)
-    return buffer
-
-# --- 2. HINNASTUSE VISUAALI GENEREERIMINE ---
+# --- HINNASTUSE PDF LOOJA ---
 
 def create_pricing_pdf(logo_file):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
+    
+    # Taust
     c.setFillColor(COLOR_BG)
     c.rect(0, 0, width, height, fill=1)
 
@@ -213,7 +134,7 @@ def create_pricing_pdf(logo_file):
     c.drawString(50, extra_y - 15, "(Ei sisaldu igakuises haldustasus, arveldatakse kuu lõpus vastavalt kulule)")
     
     # Kast lisadele
-    c.setFillColor(HexColor("#F2F2F2")) # Hallikas taust
+    c.setFillColor(COLOR_LIGHT_GREY) 
     c.setStrokeColor(COLOR_GREY)
     c.setLineWidth(1)
     c.roundRect(50, extra_y - 180, 495, 150, 10, fill=1, stroke=1)
@@ -227,8 +148,10 @@ def create_pricing_pdf(logo_file):
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
     c.drawString(80, row1_y - 15, "Pildid, videod, bännerid (Partner-tiim)")
+    
+    # HIND 1
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row1_y, "100 - 150€ / tund")
+    c.drawRightString(515, row1_y, "alates 70€ / tund")
     
     # Eraldusjoon
     c.setStrokeColor(HexColor("#DDDDDD"))
@@ -243,8 +166,10 @@ def create_pricing_pdf(logo_file):
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
     c.drawString(80, row2_y - 15, "GA4 server-side, GTM, Pixel seadistused")
+    
+    # HIND 2
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row2_y, "Projektipõhine / 150€ h")
+    c.drawRightString(515, row2_y, "100 - 150€ / tund")
     
     # Lisa 3: Lisatunnid
     row3_y = row2_y - 50
@@ -255,8 +180,10 @@ def create_pricing_pdf(logo_file):
     c.setFillColor(COLOR_TEXT)
     c.setFont("Helvetica", 10)
     c.drawString(80, row3_y - 15, "Kui töömaht ületab paketis sisalduvat aega")
+    
+    # HIND 3
     c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(515, row3_y, "150€ / tund")
+    c.drawRightString(515, row3_y, "kokkuleppel al. 100€ / tund")
 
     # --- TINGIMUSED ---
     terms_y = 110
@@ -276,29 +203,19 @@ def create_pricing_pdf(logo_file):
     return buffer
 
 # --- STREAMLIT UI ---
-st.set_page_config(page_title="Turundusjutud Dokumendid", page_icon="📄")
-st.title("📄 Turundusjutud Dokumentide Generaator")
+st.set_page_config(page_title="Turundusjutud Hinnastus", page_icon="💶")
+st.title("💶 Hinnastuse Lehe Generaator")
+st.write("Genereeri uuendatud hindadega teenuste hinnakiri.")
 
 logo = st.file_uploader("Lae üles logo (PNG)", type=['png'])
 
-# Valikukast: Mida soovid luua?
-doc_type = st.radio(
-    "Vali dokumendi tüüp:",
-    ("Koostöö Teekaart (Onboarding)", "Hinnastuse Leht (Pricing)")
-)
-
-if st.button("Loo PDF"):
-    if doc_type == "Koostöö Teekaart (Onboarding)":
-        pdf = create_process_pdf(logo)
-        filename = "Turundusjutud_Onboarding.pdf"
-    else:
-        pdf = create_pricing_pdf(logo)
-        filename = "Turundusjutud_Hinnastus.pdf"
-        
-    st.success(f"{doc_type} valmis!")
+if st.button("Loo Hinnakirja PDF"):
+    pdf = create_pricing_pdf(logo)
+    
+    st.success("Hinnakiri valmis!")
     st.download_button(
-        label="⬇️ Lae alla PDF",
+        label="⬇️ Lae alla: Turundusjutud_Hinnastus.pdf",
         data=pdf,
-        file_name=filename,
+        file_name="Turundusjutud_Hinnastus.pdf",
         mime="application/pdf"
     )
